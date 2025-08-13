@@ -15,20 +15,26 @@ _clip_model: CLIPModel | None = None
 _clip_processor: CLIPProcessor | None = None
 _device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 _sbert_loaded = False
+_sbert_failed = False
 _clip_loaded = False
 
 
-def _ensure_sbert() -> SentenceTransformer:
-	global _sbert_model, _sbert_loaded
+def _ensure_sbert() -> SentenceTransformer | None:
+	global _sbert_model, _sbert_loaded, _sbert_failed
 	if _sbert_loaded and _sbert_model is not None:
 		return _sbert_model
+	if _sbert_failed:
+		return None
 	try:
+		# Hints for caching on hosted envs
+		# You can set HF_HOME or HUGGINGFACE_HUB_CACHE to a persistent dir
 		_sbert_model = SentenceTransformer(AppConfig.SBERT_MODEL_NAME, device=str(_device))
 		_sbert_loaded = True
 		return _sbert_model
 	except Exception as e:
-		print(f"Failed to load SBERT model: {e}")
-		raise
+		print(f"Failed to load SBERT model: {e}. Falling back to CLIP text embeddings.")
+		_sbert_failed = True
+		return None
 
 
 def _ensure_clip() -> tuple[CLIPModel, CLIPProcessor]:
@@ -47,8 +53,10 @@ def _ensure_clip() -> tuple[CLIPModel, CLIPProcessor]:
 
 def get_text_embedding_sbert(texts: List[str]) -> np.ndarray:
 	model = _ensure_sbert()
-	emb = model.encode(texts, convert_to_numpy=True, normalize_embeddings=True)
-	return emb
+	if model is not None:
+		return model.encode(texts, convert_to_numpy=True, normalize_embeddings=True)
+	# Fallback: use CLIP text embeddings if SBERT unavailable
+	return get_clip_text_embedding(texts)
 
 
 def get_clip_text_embedding(texts: List[str]) -> np.ndarray:
