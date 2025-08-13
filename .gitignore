@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.venv/
+.env
+.env*/
+*.egg-info/
+.dist/
+/build/
+.cache/
+
+# IDEs
+.vscode/
+.idea/
+
+# Streamlit
+.streamlit/
+
+# Data and models
+/data/**
+!/data/.gitkeep
+/db/**
+!/db/.gitkeep
+/logs/**
+!/logs/.gitkeep
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# HuggingFace caches
+/hf_cache/
