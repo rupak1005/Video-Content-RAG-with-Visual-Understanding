@@ -12,7 +12,15 @@ from .embeddings import get_text_embedding_sbert, get_clip_image_embedding
 
 class VideoIndexer:
 	def __init__(self) -> None:
-		self.client = chromadb.PersistentClient(path=str(AppConfig.CHROMA_PERSIST_DIR), settings=Settings(anonymized_telemetry=False))
+		# Prefer persistent DB; fall back to in-memory if sqlite is unavailable
+		try:
+			self.client = chromadb.PersistentClient(
+				path=str(AppConfig.CHROMA_PERSIST_DIR),
+				settings=Settings(anonymized_telemetry=False),
+			)
+		except Exception as e:
+			print(f"Chroma persistent init failed ({e}); falling back to in-memory client.")
+			self.client = chromadb.Client(Settings(anonymized_telemetry=False))
 		self.transcripts = self._get_or_create_collection(AppConfig.COLLECTION_TRANSCRIPTS)
 		self.frames = self._get_or_create_collection(AppConfig.COLLECTION_FRAMES)
 
