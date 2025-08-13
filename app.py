@@ -1,7 +1,15 @@
 import os
 import io
+import sys
 from pathlib import Path
 from typing import List, Dict, Any
+
+# Ensure SQLite >= 3.35 via pysqlite3 on environments with old sqlite (e.g., Streamlit Cloud)
+try:
+	import pysqlite3  # type: ignore
+	sys.modules["sqlite3"] = sys.modules.pop("pysqlite3")
+except Exception:
+	pass
 
 import streamlit as st
 
