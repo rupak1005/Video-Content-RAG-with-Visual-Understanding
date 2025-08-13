@@ -4,9 +4,11 @@ A multimodal RAG system that processes videos, extracts keyframes, transcribes a
 
 ## Demo
 
-![App screenshot](assets/ui_demo.png)
+![App screenshot](assets/image.png)
+![App screenshot](assets/image1.png)
+![App screenshot](assets/image2.png)
 
-> Place your screenshot at `assets/ui_demo.png` so it renders on GitHub.
+
 
 ## Features
 - Video processing and keyframe extraction (OpenCV + FFmpeg fallback)
