@@ -5,6 +5,7 @@ from pathlib import Path
 import ffmpeg
 from faster_whisper import WhisperModel
 import torch
+import imageio_ffmpeg
 
 from .config import AppConfig
 from .schemas import TranscriptSegment, TranscriptChunk
@@ -16,12 +17,13 @@ def extract_audio_to_wav(video_path: Path) -> Path:
 	wav_path = out_dir / f"{video_path.stem}.wav"
 	if wav_path.exists():
 		return wav_path
+	ffmpeg_bin = imageio_ffmpeg.get_ffmpeg_exe()
 	(
 		ffmpeg
 			.input(str(video_path))
 			.output(str(wav_path), ac=1, ar=16000, format="wav")
 			.overwrite_output()
-			.run(quiet=True)
+			.run(cmd=ffmpeg_bin, quiet=True)
 	)
 	return wav_path
 

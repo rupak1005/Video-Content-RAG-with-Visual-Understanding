@@ -8,6 +8,7 @@ import numpy as np
 import ffmpeg
 import shutil
 import os
+import imageio_ffmpeg
 
 from .config import AppConfig
 from .schemas import Keyframe
@@ -73,12 +74,13 @@ def _extract_with_ffmpeg_periodic(video_path: Path, frame_interval_seconds: floa
 		f.unlink()
 
 	fps_expr = max(0.0001, 1.0 / max(0.0001, frame_interval_seconds))
+	ffmpeg_bin = imageio_ffmpeg.get_ffmpeg_exe()
 	(
 		ffmpeg
 			.input(str(video_path))
 			.output(str(tmp_dir / "frame_%06d.jpg"), vf=f"fps={fps_expr}", vsync=0)
 			.overwrite_output()
-			.run(quiet=True)
+			.run(cmd=ffmpeg_bin, quiet=True)
 	)
 
 	keyframes: List[Keyframe] = []
